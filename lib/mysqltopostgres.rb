@@ -36,7 +36,7 @@ class Mysql2psql
   def convert
     @reader = MysqlReader.new(options)
 
-    tag = Time.zone.new.to_s.gsub(/((\-)|( )|(:))+/, '')
+    tag = Time.new.to_s.gsub(/((\-)|( )|(:))+/, '')
 
     path = './'
 
