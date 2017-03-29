@@ -17,7 +17,7 @@ class Mysql2psql
         @adapter = pg_options.adapter('jdbcpostgresql')
 
       else
-        fail 'Unable to locate PostgreSQL destination environment in the configuration file'
+        raise 'Unable to locate PostgreSQL destination environment in the configuration file'
       end
 
       if RUBY_PLATFORM == 'java'
@@ -29,26 +29,23 @@ class Mysql2psql
           username: login,
           password: password,
           host: hostname,
-          port: port)
+          port: port
+        )
 
         @conn = ActiveRecord::Base.connection_pool.checkout
 
-        unless conn.nil?
+        if conn.nil?
+          raise_nil_connection
+        else
           raw_connection = conn.raw_connection
           @copy_manager = org.postgresql.copy.CopyManager.new(raw_connection.connection)
-        else
-          raise_nil_connection
         end
-
       else
         @jruby = false
 
         @conn = PG::Connection.open(dbname: database, user: login, password: password, host: hostname, port: port)
 
-        if conn.nil?
-          raise_nil_connection
-        end
-
+        raise_nil_connection if conn.nil?
       end
 
       @is_copying = false
@@ -143,8 +140,8 @@ class Mysql2psql
     def finish
       if jruby
         ActiveRecord::Base.connection_pool.checkin(@conn) if @conn
-      else
-        @conn.finish if @conn
+      elsif @conn
+        @conn.finish
       end
     end
 
@@ -171,7 +168,7 @@ class Mysql2psql
     end
 
     def raise_nil_connection
-      fail 'No Connection'
+      raise 'No Connection'
     end
 
     private

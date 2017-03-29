@@ -27,7 +27,7 @@ EOF
 
       @f << <<-EOF
 -- TRUNCATE #{table.name};
-TRUNCATE #{PGconn.quote_ident(table.name)} CASCADE;
+TRUNCATE #{PG::Connection.quote_ident(table.name)} CASCADE;
 
 EOF
       if serial_key
@@ -78,15 +78,15 @@ SELECT pg_catalog.setval('#{table.name}_#{serial_key}_seq', #{maxval}, true);
 -- Table: #{table.name}
 
 -- DROP TABLE #{table.name};
-DROP TABLE IF EXISTS #{PGconn.quote_ident(table.name)} CASCADE;
+DROP TABLE IF EXISTS #{PG::Connection.quote_ident(table.name)} CASCADE;
 
-CREATE TABLE #{PGconn.quote_ident(table.name)} (
+CREATE TABLE #{PG::Connection.quote_ident(table.name)} (
 EOF
 
       @f << columns
 
       if primary_index = table.indexes.find { |index| index[:primary] }
-        @f << ",\n  CONSTRAINT #{table.name}_pkey PRIMARY KEY(#{primary_index[:columns].map { |col| PGconn.quote_ident(col) }.join(', ')})"
+        @f << ",\n  CONSTRAINT #{table.name}_pkey PRIMARY KEY(#{primary_index[:columns].map { |col| PG::Connection.quote_ident(col) }.join(', ')})"
       end
 
       @f << <<-EOF
@@ -98,8 +98,8 @@ EOF
         next if index[:primary]
         unique = index[:unique] ? 'UNIQUE ' : nil
         @f << <<-EOF
-DROP INDEX IF EXISTS #{PGconn.quote_ident(index[:name])} CASCADE;
-CREATE #{unique}INDEX #{PGconn.quote_ident(index[:name])} ON #{PGconn.quote_ident(table.name)} (#{index[:columns].map { |col| PGconn.quote_ident(col) }.join(', ')});
+DROP INDEX IF EXISTS #{PG::Connection.quote_ident(index[:name])} CASCADE;
+CREATE #{unique}INDEX #{PG::Connection.quote_ident(index[:name])} ON #{PG::Connection.quote_ident(table.name)} (#{index[:columns].map { |col| PG::Connection.quote_ident(col) }.join(', ')});
 EOF
       end
     end
@@ -109,7 +109,7 @@ EOF
 
     def write_constraints(table)
       table.foreign_keys.each do |key|
-        @f << "ALTER TABLE #{PGconn.quote_ident(table.name)} ADD FOREIGN KEY (#{key[:column].map { |c|PGconn.quote_ident(c) }.join(', ')}) REFERENCES #{PGconn.quote_ident(key[:ref_table])}(#{key[:ref_column].map { |c|PGconn.quote_ident(c) }.join(', ')}) ON UPDATE #{key[:on_update]} ON DELETE #{key[:on_delete]};\n"
+        @f << "ALTER TABLE #{PG::Connection.quote_ident(table.name)} ADD FOREIGN KEY (#{key[:column].map { |c|PG::Connection.quote_ident(c) }.join(', ')}) REFERENCES #{PG::Connection.quote_ident(key[:ref_table])}(#{key[:ref_column].map { |c|PG::Connection.quote_ident(c) }.join(', ')}) ON UPDATE #{key[:on_update]} ON DELETE #{key[:on_delete]};\n"
       end
     end
 
@@ -119,7 +119,7 @@ EOF
 -- Data for Name: #{table.name}; Type: TABLE DATA; Schema: public
 --
 
-COPY "#{table.name}" (#{table.columns.map { |column| PGconn.quote_ident(column[:name]) }.join(', ')}) FROM stdin;
+COPY "#{table.name}" (#{table.columns.map { |column| PG::Connection.quote_ident(column[:name]) }.join(', ')}) FROM stdin;
 EOF
 
       reader.paginated_read(table, 1000) do |row, _counter|
@@ -128,7 +128,7 @@ EOF
         @f << row.join("\t") + "\n"
       end
       @f << "\\.\n\n"
-      # @f << "VACUUM FULL ANALYZE #{PGconn.quote_ident(table.name)};\n\n"
+      # @f << "VACUUM FULL ANALYZE #{PG::Connection.quote_ident(table.name)};\n\n"
     end
 
     def close

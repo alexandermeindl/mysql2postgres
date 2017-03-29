@@ -3,7 +3,7 @@ require 'mysql2psql/writer'
 class Mysql2psql
   class PostgresWriter < Writer
     def column_description(column)
-      "#{PGconn.quote_ident(column[:name])} #{column_type_info(column)}"
+      "#{PG::Connection.quote_ident(column[:name])} #{column_type_info(column)}"
     end
 
     def column_type(column)
@@ -15,17 +15,17 @@ class Mysql2psql
         return "integer DEFAULT nextval('#{column[:table_name]}_#{column[:name]}_seq'::regclass) NOT NULL"
       end
 
-      default = column[:default] ? " DEFAULT #{column[:default].nil? ? 'NULL' : "'" + PGconn.escape(column[:default]) + "'"}" : nil
+      default = column[:default] ? " DEFAULT #{column[:default].nil? ? 'NULL' : "'" + PG::Connection.escape(column[:default]) + "'"}" : nil
       null = column[:null] ? '' : ' NOT NULL'
       type =
       case column[:type]
 
       # String types
       when 'char'
-        default = default + '::char' if default
+        default += '::char' if default
         "character(#{column[:length]})"
       when 'varchar'
-        default = default + '::character varying' if default
+        default += '::character varying' if default
         #      puts "VARCHAR: #{column.inspect}"
         "character varying(#{column[:length]})"
 
@@ -92,7 +92,7 @@ class Mysql2psql
       when 'text'
         'text'
       when /^enum/
-        default = default + '::character varying' if default
+        default += '::character varying' if default
         enum = column[:type].gsub(/enum|\(|\)/, '')
         max_enum_size = enum.split(',').map { |check| check.size - 2 }.sort[-1]
         "character varying(#{max_enum_size}) check( \"#{column[:name]}\" in (#{enum}))"
@@ -110,7 +110,6 @@ class Mysql2psql
 
     def process_row(table, row)
       table.columns.each_with_index do |column, index|
-
         if column[:type] == 'time'
           row[index] = '%02d:%02d:%02d' % [row[index].hour, row[index].minute, row[index].second] unless row[index].nil?
         end
@@ -125,18 +124,17 @@ class Mysql2psql
         end
 
         if row[index].is_a?(String)
-          if column_type(column) == 'bytea'
-            row[index] = PGconn.escape_bytea(row[index])
-          else
-            row[index] = row[index].gsub(/\\/, '\\\\\\').gsub(/\n/, '\n').gsub(/\t/, '\t').gsub(/\r/, '\r').gsub(/\0/, '')
-          end
+          row[index] = if column_type(column) == 'bytea'
+                         PG::Connection.escape_bytea(row[index])
+                       else
+                         row[index].gsub(/\\/, '\\\\\\').gsub(/\n/, '\n').gsub(/\t/, '\t').gsub(/\r/, '\r').gsub(/\0/, '')
+                       end
         end
 
         row[index] = '\N' unless row[index]
       end
     end
 
-    def truncate(_table)
-    end
+    def truncate(_table) end
   end
 end

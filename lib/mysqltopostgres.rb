@@ -36,7 +36,7 @@ class Mysql2psql
   def convert
     @reader = MysqlReader.new(options)
 
-    tag = Time.new.to_s.gsub(/((\-)|( )|(:))+/, '')
+    tag = Time.zone.new.to_s.gsub(/((\-)|( )|(:))+/, '')
 
     path = './'
 
@@ -50,8 +50,6 @@ class Mysql2psql
 
     Converter.new(reader, writer, options).convert
 
-    if options.config['remove_dump_file']
-      File.delete filename if File.exist?(filename)
-    end
+    File.delete filename if options.config['remove_dump_file'] && File.exist?(filename)
   end
 end

@@ -28,7 +28,8 @@ begin
       'Neszt Tibor <neszt@tvnetwork.hu>',
       'Miroslav Kratochvil <exa.exa@gmail.com>',
       'Paul Gallagher <gallagher.paul@gmail.com>',
-      'Juga Paazmaya <paazmaya@yahoo.com>'
+      'Juga Paazmaya <paazmaya@yahoo.com>',
+      'Alexander Meindl <a.meindl@alphanodes.com'
     ]
     gem.add_dependency 'mysql-pr', '~> 2.9'
     gem.add_dependency 'postgres-pr', '~> 0.6'

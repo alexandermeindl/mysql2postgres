@@ -23,9 +23,9 @@ if FileTest.exist?(CONFIG_FILE) || (ARGV.length > 0 && FileTest.exist?(File.expa
     Mysql2psql.new(db_yaml['mysql2psql']).convert
   else
     # Oh Noes! There is no key in the hash...
-    fail "'#{file}' does not contain a configuration directive for mysql -> postgres"
+    raise "'#{file}' does not contain a configuration directive for mysql -> postgres"
   end
 
 else
-  fail "'#{file}' does not exist"
+  raise "'#{file}' does not exist"
 end
