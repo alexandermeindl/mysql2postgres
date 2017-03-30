@@ -1,3 +1,4 @@
+require 'zlib'
 require 'mysql2psql/writer'
 
 class Mysql2psql
@@ -125,7 +126,22 @@ class Mysql2psql
 
         if row[index].is_a?(String)
           row[index] = if column_type(column) == 'bytea'
-                         PG::Connection.escape_bytea(row[index])
+                         if column[:name] == 'data'
+                           with_gzip = false
+                           table.columns.each_with_index do |column_data, index_data|
+                             if column_data[:name] == 'compression' && row[index_data] == 'gzip'
+                               with_gzip = true
+                               break
+                             end
+                           end
+                           if with_gzip
+                             PG::Connection.escape_bytea(Zlib::Inflate.inflate(row[index]))
+                           else
+                             PG::Connection.escape_bytea(row[index])
+                           end
+                         else
+                           PG::Connection.escape_bytea(row[index])
+                         end
                        else
                          row[index].gsub(/\\/, '\\\\\\').gsub(/\n/, '\n').gsub(/\t/, '\t').gsub(/\r/, '\r').gsub(/\0/, '')
                        end
