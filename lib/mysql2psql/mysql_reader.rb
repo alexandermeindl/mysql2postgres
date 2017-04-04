@@ -128,7 +128,9 @@ class Mysql2psql
 
               @foreign_keys << index
             elsif match_data = /KEY `(\w+)` \((.*)\)/.match(line)
-              index[:name] = 'idx_' + name + '_' + match_data[1]
+              # index[:name] = 'idx_' + name + '_' + match_data[1]
+              # with redmine we do not want prefix idx_tablename_
+              index[:name] = match_data[1]
               index[:columns] = match_data[2].split(',').map { |col| col[/`(\w+)`/, 1] }
               index[:unique] = true if line =~ /UNIQUE/
               @indexes << index
