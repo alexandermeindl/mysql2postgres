@@ -135,12 +135,12 @@ class Mysql2psql
                              end
                            end
                            if with_gzip
-                             PG::Connection.escape_bytea(Zlib::Inflate.inflate(row[index]))
+                             PG::Connection.escape_bytea(Zlib::Inflate.inflate(row[index])).gsub(/\\/, '\\\\\\').gsub(/''/, "'")
                            else
-                             PG::Connection.escape_bytea(row[index])
+                             PG::Connection.escape_bytea(row[index]).gsub(/\\/, '\\\\\\').gsub(/''/, "'")
                            end
                          else
-                           PG::Connection.escape_bytea(row[index])
+                           PG::Connection.escape_bytea(row[index]).gsub(/\\/, '\\\\\\').gsub(/''/, "'")
                          end
                        else
                          row[index].gsub(/\\/, '\\\\\\').gsub(/\n/, '\n').gsub(/\t/, '\t').gsub(/\r/, '\r').gsub(/\0/, '')
