@@ -181,8 +181,8 @@ class Mysql2psql
       @mysql.charset = ::MysqlPR::Charset.by_number 192 # utf8_unicode_ci :: http://rubydoc.info/gems/mysql-pr/MysqlPR/Charset
       @mysql.query('SET NAMES utf8')
 
-      var_info = @mysql.query("SHOW VARIABLES LIKE 'query_cache_type'").
-      return if var_info.empty || var_info.first[1] == 'OFF'
+      var_info = @mysql.query("SHOW VARIABLES LIKE 'query_cache_type'")
+      return if var_info.nil? || var_info.first[1] == 'OFF'
 
       @mysql.query('SET SESSION query_cache_type = OFF')
     end
