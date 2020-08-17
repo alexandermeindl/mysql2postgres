@@ -1,8 +1,7 @@
 require 'rubygems'
 require 'rake'
 
-$LOAD_PATH.unshift('lib')
-require 'mysql2psql/version'
+require_relative 'lib/mysql2psql/version'
 
 begin
   require 'jeweler'
@@ -32,7 +31,7 @@ begin
       'Alexander Meindl <a.meindl@alphanodes.com'
     ]
     gem.add_dependency 'mysql-pr', '~> 2.9'
-    gem.add_dependency 'postgres-pr', '~> 0.6'
+    gem.add_dependency 'postgres-pr', '~> 0.7'
     gem.add_development_dependency 'test-unit', '~> 2.1'
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end

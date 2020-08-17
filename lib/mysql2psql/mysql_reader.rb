@@ -87,6 +87,7 @@ class Mysql2psql
         end
         fields
       end
+
       def indexes
         load_indexes unless @indexes
         @indexes
@@ -164,14 +165,14 @@ class Mysql2psql
         query = has_id? ? 'WHERE id >= ? AND id < ?' : 'LIMIT ?,?'
 
         cols = columns.map do |c|
-          if "multipolygon" == c[:type]
+          if c[:type] == 'multipolygon'
             "AsWKT(`#{c[:name]}`) as `#{c[:name]}`"
           else
             "`#{c[:name]}`"
           end
         end
 
-        "SELECT #{cols.join(", ")} FROM `#{name}` #{query}"
+        "SELECT #{cols.join(', ')} FROM `#{name}` #{query}"
       end
     end
 
@@ -179,6 +180,10 @@ class Mysql2psql
       @mysql = ::MysqlPR.connect(@host, @user, @passwd, @db, @port, @sock)
       @mysql.charset = ::MysqlPR::Charset.by_number 192 # utf8_unicode_ci :: http://rubydoc.info/gems/mysql-pr/MysqlPR/Charset
       @mysql.query('SET NAMES utf8')
+
+      query_cache_type = @mysql.query("SHOW VARIABLES LIKE 'query_cache_type'").first[1]
+      return if query_cache_type == 'OFF' || query_cache_type.empty
+
       @mysql.query('SET SESSION query_cache_type = OFF')
     end
 
@@ -188,15 +193,15 @@ class Mysql2psql
     end
 
     def query(*args, &block)
-      self.mysql.query(*args, &block)
+      mysql.query(*args, &block)
     rescue Mysql::Error => e
       if e.message =~ /gone away/i
-        self.reconnect
+        reconnect
         retry
       else
         puts "MySQL Query failed '#{args.inspect}' #{e.inspect}"
         puts e.backtrace[0,5].join("\n")
-        return []
+        []
       end
     end
 
@@ -220,6 +225,7 @@ class Mysql2psql
     def paginated_read(table, page_size)
       count = table.count_for_pager
       return if count < 1
+
       statement = @mysql.prepare(table.query_for_pager)
       counter = 0
       0.upto((count + page_size) / page_size) do |i|

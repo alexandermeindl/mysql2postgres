@@ -1,7 +1,15 @@
 class Mysql2psql
   class Converter
-    attr_reader :reader, :writer, :options
-    attr_reader :exclude_tables, :only_tables, :suppress_data, :suppress_ddl, :force_truncate, :preserve_order, :clear_schema
+    attr_reader :reader,
+                :writer,
+                :options,
+                :exclude_tables,
+                :only_tables,
+                :suppress_data,
+                :suppress_ddl,
+                :force_truncate,
+                :preserve_order,
+                :clear_schema
 
     def initialize(reader, writer, options)
       @reader = reader
@@ -18,8 +26,8 @@ class Mysql2psql
 
     def convert
       tables = reader.tables
-               .reject { |table| @exclude_tables.include?(table.name) }
-               .select { |table| @only_tables ? @only_tables.include?(table.name) : true }
+                     .reject { |table| @exclude_tables.include?(table.name) }
+                     .select { |table| @only_tables ? @only_tables.include?(table.name) : true }
 
       if @preserve_order
 
@@ -34,9 +42,12 @@ class Mysql2psql
 
       end
 
-      tables.each do |table|
-        writer.write_table(table)
-      end unless @suppress_ddl
+      unless @suppress_ddl
+        tables.each do |table|
+          puts "Writing DDL for #{table.name}"
+          writer.write_table(table)
+        end
+      end
 
       # tables.each do |table|
       #   writer.truncate(table) if force_truncate && suppress_ddl
@@ -50,23 +61,28 @@ class Mysql2psql
         end
 
         tables.each do |table|
+          puts "Writing data for #{table.name}"
           writer.write_contents(table, reader)
         end
 
       end
 
-      tables.each do |table|
-        writer.write_indexes(table)
-      end unless @suppress_ddl
-      tables.each do |table|
-        writer.write_constraints(table)
-      end unless @suppress_ddl
+      puts 'Writing indices and constraints'
+      unless @suppress_ddl
+        tables.each do |table|
+          writer.write_indexes table
+        end
+      end
+
+      unless @suppress_ddl
+        tables.each do |table|
+          writer.write_constraints(table)
+        end
+      end
 
       writer.close
 
-      if @clear_schema
-        writer.clear_schema
-      end
+      writer.clear_schema if @clear_schema
 
       writer.inload
 
@@ -74,8 +90,8 @@ class Mysql2psql
     rescue => e
       $stderr.puts "Mysql2psql: Conversion failed: #{e.to_s}"
       $stderr.puts e
-      $stderr.puts e.backtrace[0,3].join("\n")
-      return -1
+      $stderr.puts e.backtrace[0, 3].join("\n")
+      -1
     end
   end
 end

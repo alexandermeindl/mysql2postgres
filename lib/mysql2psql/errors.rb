@@ -1,4 +1,3 @@
-
 class Mysql2psql
   class GeneralError < StandardError
   end

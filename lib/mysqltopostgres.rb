@@ -1,4 +1,3 @@
-
 if RUBY_PLATFORM == 'java'
   require 'active_record'
   require 'postgres-pr/postgres-compat'
@@ -45,8 +44,9 @@ class Mysql2psql
     end
 
     filename = File.expand_path(File.join(path, tag + '_output.sql'))
+    puts "Dumpfile: #{filename}"
 
-    @writer = PostgresDbWriter.new(filename, options)
+    @writer = PostgresDbWriter.new filename, options
 
     Converter.new(reader, writer, options).convert
 

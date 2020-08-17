@@ -1,37 +1,51 @@
-Rails:
-  Enabled: true
+require:
+  - rubocop-performance
 
-Metrics/LineLength:
-  Max: 140
+AllCops:
+  TargetRubyVersion: 2.4
+  NewCops: enable
 
-# Offense count: 34
-# Configuration parameters: CountComments.
-Metrics/MethodLength:
-  Max: 60
-
-# Offense count: 11
-Metrics/CyclomaticComplexity:
-  Max: 13
-
-# Offense count: 10
-Metrics/PerceivedComplexity:
-  Max: 14
-
-# Offense count: 15
 Metrics/AbcSize:
-  Max: 65
+  Enabled: false
 
-Metrics/ModuleLength:
-  Max: 300
+Metrics/BlockLength:
+  Enabled: false
 
 Metrics/ClassLength:
-  Max: 300
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Layout/LineLength:
+  Max: 140
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Max: 35
+
+Performance/ChainArrayAllocation:
+  Enabled: true
+
+Style/AutoResourceCleanup:
+  Enabled: true
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
 
 Style/Documentation:
   Enabled: false
 
-Rails/HttpPositionalArguments:
+Style/ExpandPathArguments:
   Enabled: false
 
-Metrics/BlockLength:
-  Max: 50
+Style/HashTransformKeys:
+  Enabled: false
+
+Style/HashTransformValues:
+  Enabled: false

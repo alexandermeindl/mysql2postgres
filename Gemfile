@@ -12,7 +12,7 @@ platforms :jruby do
 end
 
 platforms :mri do
-  gem 'pg', '~> 0.18'
+  gem 'pg', '~> 1.1.4'
 end
 
 gem 'test-unit'
