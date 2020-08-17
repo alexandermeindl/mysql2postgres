@@ -23,8 +23,7 @@ Gem::Specification.new do |s|
     'Juga Paazmaya <olavic@gmail.com>',
     'Alexander Meindl <a.meindl@alphanodes.com'
   ]
-  s.date = '2017-03-29'
-  s.default_executable = 'mysqltopostgres'
+  s.date = '2020-08-17'
   s.description = 'Translates MySQL -> PostgreSQL'
   s.email = 'paazmaya@yahoo.com'
   s.executables = ['mysqltopostgres']
