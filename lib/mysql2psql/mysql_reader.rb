@@ -182,7 +182,7 @@ class Mysql2psql
       @mysql.query('SET NAMES utf8')
 
       var_info = @mysql.query("SHOW VARIABLES LIKE 'query_cache_type'")
-      return if var_info.nil? || var_info.first[1] == 'OFF'
+      return if var_info.nil? || var_info.first.nil? || var_info.first[1] == 'OFF'
 
       @mysql.query('SET SESSION query_cache_type = OFF')
     end
